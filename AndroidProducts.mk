@@ -6,9 +6,9 @@
 #
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/omni_bangkk.mk
+    $(LOCAL_DIR)/twrp_bangkk.mk
 
 COMMON_LUNCH_CHOICES := \
-    omni_bangkk-user \
-    omni_bangkk-userdebug \
-    omni_bangkk-eng
+    twrp_bangkk-bp2a-eng \
+    twrp_bangkk-bp2a-user \
+    twrp_bangkk-bp2a-userdebug
