@@ -31,6 +31,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     bootctrl.holi
 
+# Keystore
+PRODUCT_PACKAGES += \
+    android.system.keystore2
+
 PRODUCT_PACKAGES += \
     otapreopt_script \
     cppreopts.sh \
