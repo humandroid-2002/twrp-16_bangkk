@@ -38,10 +38,10 @@ TARGET_2ND_CPU_VARIANT_RUNTIME := cortex-a75
 # Bootloader
 TARGET_BOOTLOADER_BOARD_NAME := bangkk
 TARGET_NO_BOOTLOADER := true
-
+TARGET_USES_UEFI := true
 # Display
 TARGET_SCREEN_DENSITY := 400
-
+TARGET_USES_MKE2FS := true
 # Kernel
 BOARD_BOOTIMG_HEADER_VERSION := 3
 BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
@@ -60,15 +60,24 @@ endif
 # Partitions
 BOARD_BOOTIMAGE_PARTITION_SIZE := 100663296
 BOARD_RECOVERYIMAGE_PARTITION_SIZE := 100663296
+BOARD_INIT_BOOT_IMAGE_PARTITION_SIZE := 100663296
+BOARD_SYSTEMIMAGE_JOURNAL_SIZE := 0
+BOARD_SYSTEMIMAGE_EXTFS_INODE_COUNT := 4096
+BOARD_VENDOR_BOOTIMAGE_PARTITION_SIZE := 100663296
+BOARD_USERDATAIMAGE_PARTITION_SIZE := 246543265792
 BOARD_HAS_LARGE_FILESYSTEM := true
 BOARD_SYSTEMIMAGE_PARTITION_TYPE := ext4
-BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := ext4
+BOARD_PRODUCTIMAGE_FILE_SYSTEM_TYPE := ext4
+BOARD_SYSTEMIMAGE_FILE_SYSTEM_TYPE := ext4
+BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE := ext4
+BOARD_FLASH_BLOCK_SIZE := 262144 # (BOARD_KERNEL_PAGESIZE * 64)
+BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := f2fs
 BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
 TARGET_COPY_OUT_VENDOR := vendor
-BOARD_SUPER_PARTITION_SIZE := 9126805504 # TODO: Fix hardcoded value
+BOARD_SUPER_PARTITION_SIZE := 6710886400
 BOARD_SUPER_PARTITION_GROUPS := motorola_dynamic_partitions
 BOARD_MOTOROLA_DYNAMIC_PARTITIONS_PARTITION_LIST := system system system_ext system_ext product product vendor vendor odm
-BOARD_MOTOROLA_DYNAMIC_PARTITIONS_SIZE := 9122611200 # TODO: Fix hardcoded value
+BOARD_MOTOROLA_DYNAMIC_PARTITIONS_SIZE := 6706692096 # TODO: Fix hardcoded value
 
 # Platform
 TARGET_BOARD_PLATFORM := holi
@@ -130,9 +139,13 @@ TW_USE_LEGACY_BATTERY_SERVICES := true
 TARGET_RECOVERY_QCOM_RTC_FIX := true
 
 
+# Props
+TARGET_SYSTEM_PROP += $(DEVICE_PATH)/system.prop
+TARGET_VENDOR_PROP += $(DEVICE_PATH)/vendor.prop
 
-
-
+TARGET_COPY_OUT_VENDOR := vendor
+TARGET_COPY_OUT_PRODUCT := product
+TARGET_COPY_OUT_SYSTEM := system
 TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery.fstab
 TARGET_USE_CUSTOM_LUN_FILE_PATH := /config/usb_gadget/g1/functions/mass_storage.0/lun.%d/file
 FIXED_DECRYPT := true
@@ -140,7 +153,9 @@ TW_INCLUDE_CRYPTO := $(FIXED_DECRYPT)
 TW_INCLUDE_CRYPTO_FBE := $(FIXED_DECRYPT)
 TW_INCLUDE_FBE_METADATA_DECRYPT := $(FIXED_DECRYPT)
 BOARD_USES_QCOM_FBE_DECRYPTION := $(FIXED_DECRYPT)
-TW_USE_FSCRYPT_POLICY  := 2
+TW_USE_FSCRYPT_POLICY := 1
+BOARD_USES_METADATA_PARTITION := true
+BOARD_SUPPRESS_SECURE_ERASE := true
 TW_LOAD_VENDOR_MODULES := "adsp_loader_dlkm.ko apr_dlkm.ko aw87xxx_dlkm.ko aw882xx_acf.ko aw882xx_k419.ko awinic_sar.ko bolero_cdc_dlkm.ko bq25980_mmi_iio.ko bt_fm_slim.ko btpower.ko camera.ko cci_intf.ko exfat.ko fm_ctrl.ko focaltech_v3.ko goodix_brl_mmi.ko ldo_vibrator_mmi.ko lzo.ko lzo_compress.ko lzo_decompress.ko lzo-rle.ko machine_dlkm.ko mbhc_dlkm.ko mmi_annotate.ko mmi_info.ko mmi_parallel_charger_iio.ko mmi_relay.ko mmi-smbcharger-iio.ko mmi_sys_temp.ko native_dlkm.ko pinctrl_lpi_dlkm.ko platform_dlkm.ko q6_dlkm.ko q6_notifier_dlkm.ko q6_pdr_dlkm.ko qpnp_adaptive_charge.ko rbs_fod_mmi.ko rdbg.ko rmnet_core.ko rmnet_ctl.ko rmnet_offload.ko rmnet_shs.ko rx_macro_dlkm.ko sec_nfc.ko sensors_class.ko snd_event_dlkm.ko stub_dlkm.ko swr_ctrl_dlkm.ko swr_dlkm.ko sx937x_sar.ko touchscreen_mmi.ko tx_macro_dlkm.ko utags.ko va_macro_dlkm.ko wcd937x_dlkm.ko wcd937x_slave_dlkm.ko wcd938x_dlkm.ko wcd938x_slave_dlkm.ko wcd9xxx_dlkm.ko wcd_core_dlkm.ko wlan.ko wsa881x_analog_dlkm.ko zram.ko"
 
 BOARD_ROOT_EXTRA_SYMLINKS := \

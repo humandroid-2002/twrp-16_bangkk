@@ -31,6 +31,11 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     bootctrl.holi
 
+
+PRODUCT_PACKAGES += \
+    qcom_decrypt \
+    qcom_decrypt_fbe
+
 # Keystore
 PRODUCT_PACKAGES += \
     android.system.keystore2
