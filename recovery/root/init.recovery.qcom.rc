@@ -25,94 +25,12 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-service runatboot /system/bin/runatboot.sh
-    user root
-    group root
-    oneshot
-    seclabel u:r:recovery:s0
-
-service vendor.keymaster-4-0 /vendor/bin/hw/android.hardware.keymaster@4.0-service-qti
-    user root
-    group root drmrpc
-    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib:/system/lib64:/system/lib:/sbin
-    disabled
-    seclabel u:r:recovery:s0
-
-service vendor.keymaster-4-1 /vendor/bin/hw/android.hardware.keymaster@4.1-service-qti
-    user root
-    group root drmrpc
-    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib:/system/lib64:/system/lib:/sbin
-    disabled
-    seclabel u:r:recovery:s0
-
+import /init.recovery.qcom_decrypt.rc
+import /init.recovery.service.rc
 
 on early-init
-    start runtatboot
     start set_permissive
-    insmod /vendor/lib/modules/1.1/wcd9xxx_dlkm.ko
-    insmod /vendor/lib/modules/1.1/aw882xx_acf.ko
-    insmod /vendor/lib/modules/1.1/wsa881x_analog_dlkm.ko
-    insmod /vendor/lib/modules/1.1/btpower.ko
-    insmod /vendor/lib/modules/1.1/q6_pdr_dlkm.ko
-    insmod /vendor/lib/modules/1.1/machine_dlkm.ko
-    insmod /vendor/lib/modules/1.1/zram.ko
-    insmod /vendor/lib/modules/1.1/swr_ctrl_dlkm.ko
-    insmod /vendor/lib/modules/1.1/wcd938x_slave_dlkm.ko
-    insmod /vendor/lib/modules/1.1/q6_notifier_dlkm.ko
-    insmod /vendor/lib/modules/1.1/wcd_core_dlkm.ko
-    insmod /vendor/lib/modules/1.1/wcd937x_slave_dlkm.ko
-    insmod /vendor/lib/modules/1.1/wcd937x_dlkm.ko
-    insmod /vendor/lib/modules/1.1/rx_macro_dlkm.ko
-    insmod /vendor/lib/modules/1.1/platform_dlkm.ko
-    insmod /vendor/lib/modules/1.1/lzo_decompress.ko
-    insmod /vendor/lib/modules/1.1/camera.ko
-    insmod /vendor/lib/modules/1.1/sec_nfc.ko
-    insmod /vendor/lib/modules/1.1/pinctrl_lpi_dlkm.ko
-    insmod /vendor/lib/modules/1.1/wcd938x_dlkm.ko
-    insmod /vendor/lib/modules/1.1/stub_dlkm.ko
-    insmod /vendor/lib/modules/1.1/bt_fm_slim.ko
-    insmod /vendor/lib/modules/1.1/aw87xxx_dlkm.ko
-    insmod /vendor/lib/modules/1.1/adsp_loader_dlkm.ko
-    insmod /vendor/lib/modules/1.1/mbhc_dlkm.ko
-    insmod /vendor/lib/modules/1.1/va_macro_dlkm.ko
-    insmod /vendor/lib/modules/1.1/native_dlkm.ko
-    insmod /vendor/lib/modules/1.1/snd_event_dlkm.ko
-    insmod /vendor/lib/modules/1.1/rdbg.ko
-    insmod /vendor/lib/modules/1.1/lzo-rle.ko
-    insmod /vendor/lib/modules/1.1/bolero_cdc_dlkm.ko
-    insmod /vendor/lib/modules/1.1/q6_dlkm.ko
-    insmod /vendor/lib/modules/1.1/lzo.ko
-    insmod /vendor/lib/modules/1.1/aw882xx_k419.ko
-    insmod /vendor/lib/modules/1.1/lzo_compress.ko
-    insmod /vendor/lib/modules/1.1/apr_dlkm.ko
-    insmod /vendor/lib/modules/1.1/swr_dlkm.ko
-    insmod /vendor/lib/modules/1.1/tx_macro_dlkm.ko
-    insmod /vendor/lib/modules/1.1/wlan.ko
-    insmod /vendor/lib/modules/1.1/rmnet_core.ko
-    insmod /vendor/lib/modules/1.1/rmnet_ctl.ko
-    insmod /vendor/lib/modules/1.1/rmnet_offload.ko
-    insmod /vendor/lib/modules/1.1/rmnet_shs.ko
-    insmod /vendor/lib/modules/1.1/utags.ko
-    insmod /vendor/lib/modules/1.1/mmi_relay.ko
-    insmod /vendor/lib/modules/1.1/mmi_info.ko
-    insmod /vendor/lib/modules/1.1/mmi_annotate.ko
-    insmod /vendor/lib/modules/1.1/sensors_class.ko
-    insmod /vendor/lib/modules/1.1/exfat.ko
-    insmod /vendor/lib/modules/1.1/qpnp_adaptive_charge.ko
-    insmod /vendor/lib/modules/1.1/rbs_fod_mmi.ko
-    insmod /vendor/lib/modules/1.1/sx937x_sar.ko
-    insmod /vendor/lib/modules/1.1/awinic_sar.ko
-    insmod /vendor/lib/modules/1.1/mmi_sys_temp.ko
-    insmod /vendor/lib/modules/1.1/ldo_vibrator_mmi.ko
-    insmod /vendor/lib/modules/1.1/touchscreen_mmi.ko
-    insmod /vendor/lib/modules/1.1/focaltech_v3.ko
-    insmod /vendor/lib/modules/1.1/goodix_brl_mmi.ko
-    insmod /vendor/lib/modules/1.1/cci_intf.ko
-    insmod /vendor/lib/modules/1.1/bq25980_mmi_iio.ko
-    insmod /vendor/lib/modules/1.1/mmi-smbcharger-iio.ko
-    insmod /vendor/lib/modules/1.1/mmi_parallel_charger_iio.ko
-    insmod /vendor/lib/modules/1.1/fm_ctrl.ko
-
+    setenv LD_LIBRARY_PATH /vendor/lib64:/system/lib64:/vendor/lib:/system/lib
 
 on init
     write /sys/class/backlight/panel0-backlight/brightness 200
@@ -133,17 +51,15 @@ on fs
 
 on boot
     start health-hal-2-1
-    start vendor.keymaster-4-0
-    start vendor.keymaster-4-1
+
+on post-fs
+    start boot-hal-1-1
 
 service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
     user root
     group root
     setenv LD_LIBRARY_PATH /vendor/lib64:/system/lib64
     seclabel u:r:recovery:s0
-
-on post-fs
-    start boot-hal-1-1
 
 on property:twrp.modules.loaded=true
     # Load ADSP firmware for PMIC
@@ -158,4 +74,8 @@ service set_permissive /system/bin/set_permissive.sh
     oneshot
     seclabel u:r:recovery:s0
 
-import /init.recovery.qcom_decrypt.rc
+service mount_vendor /system/bin/mount_vendor.sh
+    user root
+    group root
+    oneshot
+    seclabel u:r:recovery:s0
