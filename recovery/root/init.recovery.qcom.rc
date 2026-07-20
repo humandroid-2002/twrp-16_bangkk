@@ -30,6 +30,7 @@ import /init.recovery.service.rc
 
 on early-init
     start set_permissive
+    start runatboot
     setenv LD_LIBRARY_PATH /vendor/lib64:/system/lib64:/vendor/lib:/system/lib
 
 on init
@@ -74,7 +75,7 @@ service set_permissive /system/bin/set_permissive.sh
     oneshot
     seclabel u:r:recovery:s0
 
-service mount_vendor /system/bin/mount_vendor.sh
+service runatboot /system/bin/runatboot.sh
     user root
     group root
     oneshot
