@@ -28,11 +28,6 @@ PRODUCT_PACKAGES += \
     android.hardware.boot@1.0-service \
     vendor_kernel_prebuilts
 
-# Boot control
-PRODUCT_PACKAGES += \
-    android.hardware.boot@1.1-impl-qti.recovery \
-    bootctrl.holi.recovery
-
 PRODUCT_PACKAGES += \
     bootctrl.holi
 
