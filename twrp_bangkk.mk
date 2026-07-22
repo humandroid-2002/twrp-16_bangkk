@@ -8,6 +8,9 @@
 # Configure base.mk
 $(call inherit-product, $(SRC_TARGET_DIR)/product/base.mk)
 
+# Installs gsi keys into ramdisk, to boot a GSI with verified boot.
+$(call inherit-product, $(SRC_TARGET_DIR)/product/developer_gsi_keys.mk)
+
 # Configure core_64_bit_only.mk
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit_only.mk)
 
@@ -30,7 +33,7 @@ PRODUCT_ENABLE_UFFD_GC := true
 PRODUCT_DEVICE := bangkk
 PRODUCT_NAME := twrp_bangkk
 PRODUCT_BRAND := motorola
-PRODUCT_MODEL := HelloMotoG84
+PRODUCT_MODEL := HelloMoto
 PRODUCT_MANUFACTURER := motorola
 
 PRODUCT_GMS_CLIENTID_BASE := android-motorola

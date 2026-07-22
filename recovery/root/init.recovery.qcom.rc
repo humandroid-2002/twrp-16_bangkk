@@ -29,9 +29,11 @@ import /init.recovery.qcom_decrypt.rc
 import /init.recovery.service.rc
 
 on early-init
-    start set_permissive
+    write /sys/fs/selinux/enforce 0
     start runatboot
-    setenv LD_LIBRARY_PATH /vendor/lib64:/system/lib64:/vendor/lib:/system/lib
+    # FIX: Set correct SELinux file contexts for all vendor crypto binaries
+    # so init can actually launch them (they were landing as u:object_r:rootfs:s0)
+    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib:/system/lib64:/system/lib:/system_ext/lib64:/system_ext/lib:/product/lib64:/product/lib
 
 on early-fs
     write /proc/sys/kernel/sched_lib_name "recovery,Updater,updater,update_engine_sideload"
@@ -66,21 +68,16 @@ on property:twrp.modules.loaded=true
     wait /sys/kernel/boot_adsp/boot
     write /sys/kernel/boot_adsp/boot 1
     wait /sys/class/power_supply/battery
+    umount /firmware
 
-service set_permissive /system/bin/set_permissive.sh
+service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
     user root
     group root
-    oneshot
+    setenv LD_LIBRARY_PATH /vendor/lib64:/system/lib64
     seclabel u:r:recovery:s0
 
 service runatboot /system/bin/runatboot.sh
     user root
     group root
     oneshot
-    seclabel u:r:recovery:s0
-
-service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
-    user root
-    group root
-    setenv LD_LIBRARY_PATH /vendor/lib64:/system/lib64
     seclabel u:r:recovery:s0

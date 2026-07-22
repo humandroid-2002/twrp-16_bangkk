@@ -8,18 +8,6 @@
 LOCAL_PATH := device/motorola/bangkk
 
 # A/B
-AB_OTA_PARTITIONS += \
-    boot \
-    dtbo \
-    product \
-    system \
-    system_ext \
-    vbmeta \
-    vbmeta_system \
-    vendor \
-    vendor_boot
-
-AB_OTA_UPDATER := true
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
 TARGET_ENFORCE_AB_OTA_PARTITION_LIST := true
 TARGET_OTA_ASSERT_DEVICE := bangkk,bangkk_retcn,bangkk_reteu,bangkk_retus,bangkk_retla
