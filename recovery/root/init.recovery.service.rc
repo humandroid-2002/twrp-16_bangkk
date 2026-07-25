@@ -1,4 +1,5 @@
 on boot
+   start recovery
 
 # For starting recovery on 5.0 and newer
 service recovery /system/bin/recovery

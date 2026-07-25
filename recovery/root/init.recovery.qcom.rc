@@ -29,9 +29,14 @@ import /init.recovery.qcom_decrypt.rc
 import /init.recovery.service.rc
 
 on early-init
-    start set_permissive
+    write /sys/fs/selinux/enforce 0
     start runatboot
+    start set_permissive
     setenv LD_LIBRARY_PATH /vendor/lib64:/system/lib64:/vendor/lib:/system/lib
+
+on early-fs
+    write /proc/sys/kernel/sched_lib_name "recovery,Updater,updater,update_engine_sideload"
+    write /proc/sys/kernel/sched_lib_mask_force 255
 
 on init
     write /sys/class/backlight/panel0-backlight/brightness 200
@@ -41,39 +46,41 @@ on init
 on fs
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
-
     # Mount firmware partition
     mkdir /firmware_mnt
-
     mount ext4 /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /firmware_mnt ro
-
     # symlink to firmware
     symlink /firmware_mnt/image /firmware
 
 on boot
+    start vendor.qti.vibrator
     start health-hal-2-1
 
 on post-fs
-    start vendor.boot-qti
     start boot-hal-1-1
-
-service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
-    user root
-    group root
-    setenv LD_LIBRARY_PATH /vendor/lib64:/system/lib64
-    seclabel u:r:recovery:s0
 
 on property:twrp.modules.loaded=true
     # Load ADSP firmware for PMIC
     wait /sys/kernel/boot_adsp/boot
     write /sys/kernel/boot_adsp/boot 1
     wait /sys/class/power_supply/battery
-    umount /firmware_mnt
+
+on property:twrp.modules.loaded=false
+    # Load ADSP firmware for PMIC
+    wait /sys/kernel/boot_adsp/boot
+    write /sys/kernel/boot_adsp/boot 1
+    wait /sys/class/power_supply/battery
 
 service set_permissive /system/bin/set_permissive.sh
     user root
     group root
     oneshot
+    seclabel u:r:recovery:s0
+
+service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
+    user root
+    group root
+    setenv LD_LIBRARY_PATH /vendor/lib64:/system/lib64
     seclabel u:r:recovery:s0
 
 service runatboot /system/bin/runatboot.sh
