@@ -18,7 +18,7 @@ clone_if_missing() {
 }
 
 # Required repositories
-clone_if_missing https://github.com/LineageOS/android_hardware_qcom_bootctrl.git lineage-23.2-caf hardware/qcom-caf/bootctrl
+clone_if_missing https://github.com/LineageOS/android_hardware_qcom_bootctrl.git lineage-19.1-caf hardware/qcom-caf/bootctrl
 clone_if_missing https://gitlab.com/inferno0230/clang-r487747c.git thirteen prebuilts/clang/host/linux-x86/clang-r487747c
 clone_if_missing https://github.com/LineageOS/android_kernel_motorola_sm6375.git lineage-23.2 kernel/motorola/sm6375
 
