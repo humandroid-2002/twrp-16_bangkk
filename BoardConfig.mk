@@ -78,6 +78,7 @@ BOARD_KERNEL_IMAGE_NAME := Image
 BOARD_RAMDISK_USE_LZ4   := true
 
 # Keep only required modules; we're almost on size limit (Touch,Battery and Haptics)
+TW_LOAD_PREBUILT_MODULES_AT_FIRST := true
 TW_LOAD_VENDOR_MODULES := "mmi_relay.ko mmi_info.ko mmi_annotate.ko sensors_class.ko exfat.ko touchscreen_mmi.ko focaltech_v3.ko goodix_brl_mmi.ko bq25980_mmi_iio.ko mmi-smbcharger-iio.ko mmi_parallel_charger_iio.ko ldo_vibrator_mmi.ko"
 # WLAN
 #TW_LOAD_VENDOR_MODULES := 
@@ -158,6 +159,7 @@ TARGET_COPY_OUT_ODM        := odm
 TARGET_COPY_OUT_VENDOR     := vendor
 
 BOARD_PROPERTY_OVERRIDES_SPLIT_ENABLED := true
+TW_PREPARE_DATA_MEDIA_EARLY            := true
 BOARD_HAS_LARGE_FILESYSTEM             := true
 BOARD_USES_PRODUCTIMAGE                := true
 
@@ -192,6 +194,10 @@ TARGET_USE_CUSTOM_LUN_FILE_PATH := /config/usb_gadget/g1/functions/mass_storage.
 TW_INPUT_BLACKLIST              := "hbtp_vm"
 TW_BRIGHTNESS_PATH              := "/sys/class/backlight/panel0-backlight/brightness"
 TW_CUSTOM_CPU_TEMP_PATH         := "/sys/class/thermal/thermal_zone28/temp" # CPU-0-0-USR
+TW_CUSTOM_BATTERY_PATH          := "/sys/class/power_supply/qcom_battery"
+TW_HAS_FLASHLIGHT               := false
+TW_NO_SCREEN_TIMEOUT            := true
+RECOVERY_SDCARD_ON_DATA         := true
 TW_MAX_BRIGHTNESS               := 1650
 TW_DEFAULT_BRIGHTNESS           := 1300
 TW_DEFAULT_TIME_ZONE            := UTC+1
@@ -214,11 +220,17 @@ TW_INCLUDE_RESETPROP            := true
 TW_INCLUDE_REPACKTOOLS          := true
 TW_INCLUDE_LIBRESETPROP         := true
 TW_EXTRA_LANGUAGES              := false
-TW_EXCLUDE_TWRPAPP              := false
+TW_EXCLUDE_TWRPAPP              := true
 TW_EXCLUDE_NANO                 := false
 TW_INCLUDE_NTFS_3G              := true
 TARGET_USES_LOGD                := true
 TWRP_INCLUDE_LOGCAT             := true
+TW_HAS_EDL_MODE                 := true
+TW_INCLUDE_FASTBOOTD            := true
+#TW_INCLUDE_OMAPI                := true # WLAN (if I ever feel like it)
+#TW_INCLUDE_7ZA                  := true
+#TW_INCLUDE_PYTHON               := true
+TW_INCLUDE_ZSTD                 := true
 
 # Battery
 TW_USE_LEGACY_BATTERY_SERVICES  := true
@@ -238,6 +250,7 @@ RECOVERY_BINARY_SOURCE_FILES += \
 RECOVERY_LIBRARY_SOURCE_FILES += \
     $(TARGET_OUT_SHARED_LIBRARIES)/libion.so \
     $(TARGET_OUT_SHARED_LIBRARIES)/libxml2.so \
+    $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/display.config@2.0.so \
     $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/vendor.display.config@2.0.so
 
 # Misc

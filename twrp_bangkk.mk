@@ -29,6 +29,9 @@ $(call inherit-product, vendor/twrp/config/common.mk)
 # Inherit from bangkk device
 $(call inherit-product, device/motorola/bangkk/device.mk)
 
+# Inherit from fox
+$(call inherit-product, device/motorola/bangkk/fox.mk)
+
 PRODUCT_ENABLE_UFFD_GC := true
 PRODUCT_DEVICE         := bangkk
 PRODUCT_NAME           := twrp_bangkk

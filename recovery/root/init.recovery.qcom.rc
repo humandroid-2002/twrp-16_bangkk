@@ -46,11 +46,14 @@ on init
 on fs
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
-    # Mount firmware partition
-    mkdir /firmware_mnt
-    mount ext4 /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /firmware_mnt ro
-    # symlink to firmware
-    symlink /firmware_mnt/image /firmware
+    # Mount firmware
+    mkdir /firmware
+    mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /firmware ro
+    # Load ADSP firmware for PMIC
+    wait /sys/kernel/boot_adsp/boot
+    write /sys/kernel/boot_adsp/boot 1
+    wait /sys/class/power_supply/battery
+    symlink /firmware /vendor/firmware_mnt
 
 on boot
     start vendor.qti.vibrator

@@ -138,21 +138,6 @@ if [ -d "$FW_DIR" ]; then
     log "Firmware presente"
 fi
 
-mkdir /firmware
-SLOT=$(getprop ro.boot.slot_suffix)
-mount /dev/block/bootdevice/by-name/modem$SLOT /firmware -O ro
-echo "1" > /proc/sys/kernel/firmware_config/force_sysfs_fallback
-echo "1" > /sys/kernel/boot_adsp/boot
-
-sleep 5
-
-# Mount RW
-mount -o rw /system_root
-mount -o rw /system_ext
-mount -o rw /system
-mount -o rw /product
-mount -o rw /vendor
-
 # Verifica moduli caricati
 MODULES_OK=1
 

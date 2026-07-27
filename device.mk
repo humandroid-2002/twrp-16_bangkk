@@ -45,6 +45,7 @@ PRODUCT_PACKAGES += \
 TARGET_RECOVERY_DEVICE_MODULES += \
     libion \
     libxml2 \
+    display.config@2.0 \
     vendor.display.config@2.0
 
 # Decrypt
