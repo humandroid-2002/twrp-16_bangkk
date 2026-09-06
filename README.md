@@ -32,7 +32,7 @@ It was announced in August 2023 and released in September 2023.
 
 ## First-time installation
     * Download the `boot.img` file from the Releases section.  
-      We currently provide unofficial builds for TWRP, SHRP, OrangeFox, and PBRP.
+      We currently provide unofficial builds for TWRP, OrangeFox.
     * Reboot your device to bootloader mode
     * Run:
           `fastboot boot boot.img`
