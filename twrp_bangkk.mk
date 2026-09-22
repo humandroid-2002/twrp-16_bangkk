@@ -24,6 +24,7 @@ $(call inherit-product, device/motorola/bangkk/ofox.mk)
 $(call inherit-product, device/motorola/bangkk/pbrp.mk)
 
 # Must come after all inclusions
+PRODUCT_ENABLE_UFFD_GC := true
 PRODUCT_BRAND        := motorola
 PRODUCT_DEVICE       := bangkk
 PRODUCT_MANUFACTURER := motorola
