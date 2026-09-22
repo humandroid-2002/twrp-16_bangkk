@@ -10,6 +10,6 @@ PRODUCT_MAKEFILES := \
 
 # Lunch Choices
 COMMON_LUNCH_CHOICES := \
-    twrp_bangkk-eng \
-    twrp_bangkk-user \
-    twrp_bangkk-userdebug
+    twrp_bangkk-bp2a-eng \
+    twrp_bangkk-bp2a-user \
+    twrp_bangkk-bp2a-userdebug
