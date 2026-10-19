@@ -13,19 +13,19 @@ AB_OTA_POSTINSTALL_CONFIG += \
     FILESYSTEM_TYPE_system=ext4 \
     POSTINSTALL_OPTIONAL_system=true
 
-# Boot control HAL
-PRODUCT_PACKAGES += \
-    android.hardware.boot@1.0-impl \
-    android.hardware.boot@1.0-service
+PRODUCT_PACKAGES_DEBUG += \
+    update_engine_client
 
+# Update engine
 PRODUCT_PACKAGES += \
-    bootctrl.holi
+    update_engine \
+    update_engine_sideload \
+    update_verifier
 
-PRODUCT_STATIC_BOOT_CONTROL_HAL := \
-    bootctrl.holi \
-    libgptutils \
-    libz \
-    libcutils
+# Boot control
+PRODUCT_PACKAGES += \
+    android.hardware.boot@1.1-impl-qti.recovery \
+    bootctrl.holi.recovery
 
 PRODUCT_PACKAGES += \
     otapreopt_script \
@@ -33,3 +33,14 @@ PRODUCT_PACKAGES += \
     update_engine \
     update_verifier \
     update_engine_sideload
+
+TARGET_RECOVERY_DEVICE_MODULES += \
+    libion \
+    libxml2 \
+    vendor.display.config@2.0
+    
+PRODUCT_SHIPPING_API_LEVEL := 30
+PRODUCT_TARGET_VNDK_VERSION := 30
+
+PRODUCT_SOONG_NAMESPACES += \
+    $(LOCAL_PATH)

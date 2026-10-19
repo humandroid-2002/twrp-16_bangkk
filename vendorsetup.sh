@@ -5,6 +5,5 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-add_lunch_combo omni_bangkk-user
-add_lunch_combo omni_bangkk-userdebug
-add_lunch_combo omni_bangkk-eng
+export ALLOW_MISSING_DEPENDENCIES=true
+
