@@ -42,5 +42,14 @@ TARGET_RECOVERY_DEVICE_MODULES += \
 PRODUCT_SHIPPING_API_LEVEL := 30
 PRODUCT_TARGET_VNDK_VERSION := 30
 
+# QCOM Decrypt
+PRODUCT_PACKAGES += \
+    qcom_decrypt \
+    qcom_decrypt_fbe
+
+# Keystore2
+PRODUCT_PACKAGES += \
+    android.system.keystore2
+
 PRODUCT_SOONG_NAMESPACES += \
     $(LOCAL_PATH)
