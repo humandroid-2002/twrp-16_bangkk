@@ -19,8 +19,14 @@ clone_if_missing() {
 
 # Required repositories
 clone_if_missing https://github.com/LineageOS/android_hardware_qcom_bootctrl.git lineage-19.1-caf hardware/qcom-caf/bootctrl
-clone_if_missing https://gitlab.com/inferno0230/clang-r487747c.git thirteen prebuilts/clang/host/linux-x86/clang-r487747c
-clone_if_missing https://github.com/LineageOS/android_kernel_motorola_sm6375.git lineage-23.2 kernel/motorola/sm6375
-
 export LC_ALL="C"
-export ALLOW_MISSING_DEPENDENCIES=true
+export USE_CCACHE=1
+export CCACHE_EXEC="/usr/bin/ccache"
+export CCACHE_MAXSIZE="50G"
+export CCACHE_DIR="/mnt/ccache"
+
+# Warn if CCACHE_DIR is an invalid directory
+if [ "$USE_CCACHE" = "1" ] && [ ! -d "${CCACHE_DIR}" ]; then
+    echo "CCACHE Directory/Partition is not mounted at \"${CCACHE_DIR}\""
+    echo "Please edit the CCACHE_DIR build variable or mount the directory."
+fi
