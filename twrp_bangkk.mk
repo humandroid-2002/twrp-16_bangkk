@@ -39,9 +39,6 @@ PRODUCT_BRAND          := motorola
 PRODUCT_MODEL          := HelloMoto
 PRODUCT_MANUFACTURER   := motorola
 
-# TWRP device tree generator... What is For?
-PRODUCT_GMS_CLIENTID_BASE := android-motorola
-
 #PRODUCT_BUILD_PROP_OVERRIDES += \
 #    PRIVATE_BUILD_DESC="bangkk_g-user 11 V1TCS35H.88-16-6 9ef38 release-keys"
 
