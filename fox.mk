@@ -12,12 +12,6 @@ OF_USE_LOCKSCREEN_BUTTON := 1
 # Timezone
 OF_DEFAULT_TIMEZONE := CET-1CEST,M3.5.0,M10.5.0/3
 
-# OrangeFox
-FOX_VIRTUAL_AB_DEVICE := 1
-FOX_RECOVERY_SYSTEM_PARTITION := /dev/block/mapper/system
-FOX_RECOVERY_VENDOR_PARTITION := /dev/block/mapper/vendor
-OF_QUICK_BACKUP_LIST := /boot;/data;/dtbo;
-
 # disable the flashlight
 OF_FLASHLIGHT_ENABLE := 0
 
