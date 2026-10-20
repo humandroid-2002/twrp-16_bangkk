@@ -20,19 +20,11 @@ on property:ro.crypto.state=encrypted && property:ro.boot.dynamic_partitions=tru
 on property:crypto.ready=1 && property:hwservicemanager.ready=true
     start qseecomd
 
-on property:sys.listeners.registered=true && property:keymaster_ver=3.0
-
-on property:sys.listeners.registered=true && property:keymaster_ver=4.0
-
 on property:sys.listeners.registered=true && property:keymaster_ver=4.1
     start keymaster-4-1-qti
 
 on property:sys.listeners.registered=true && property:keymaster_ver=4.x
     start keymaster-4-1-qti
-
-on property:vendor.sys.listeners.registered=true && property:keymaster_ver=3.0
-
-on property:vendor.sys.listeners.registered=true && property:keymaster_ver=4.0
 
 on property:vendor.sys.listeners.registered=true && property:keymaster_ver=4.1
     start keymaster-4-1-qti
