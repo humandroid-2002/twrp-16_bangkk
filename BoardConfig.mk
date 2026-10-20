@@ -260,3 +260,6 @@ ifeq ($(FIXED_HAPTICS),true)
 else
    TW_NO_HAPTICS := true
 endif
+
+# Set to 1 to include WLAN features
+OF_ENABLE_WLAN := 1
