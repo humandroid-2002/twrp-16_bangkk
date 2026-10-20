@@ -29,16 +29,9 @@ PRODUCT_PACKAGES += \
     cppreopts.sh \
     checkpoint_gc
 
-# Update engine Debug
-PRODUCT_PACKAGES_DEBUG += \
-    update_engine_client
-
 # Boot control HAL
 PRODUCT_PACKAGES += \
     android.hardware.boot@1.1-impl-qti.recovery \
-    android.hardware.boot@1.0-impl \
-    android.hardware.boot@1.0-service \
-    bootctrl.holi.recovery \
     bootctrl.holi
 
 # Recovery
