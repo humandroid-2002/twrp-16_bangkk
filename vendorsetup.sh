@@ -30,3 +30,7 @@ if [ "$USE_CCACHE" = "1" ] && [ ! -d "${CCACHE_DIR}" ]; then
     echo "CCACHE Directory/Partition is not mounted at \"${CCACHE_DIR}\""
     echo "Please edit the CCACHE_DIR build variable or mount the directory."
 fi
+
+export FOX_REMOVE_AAPT=1
+export FOX_REMOVE_ZIP_BINARY=1
+export FOX_DRASTIC_SIZE_REDUCTION=1

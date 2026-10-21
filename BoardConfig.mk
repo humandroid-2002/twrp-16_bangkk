@@ -10,7 +10,6 @@ DEVICE_PATH := device/motorola/bangkk
 # Build Rules
 ALLOW_MISSING_DEPENDENCIES := true
 BUILD_BROKEN_DUP_RULES := true
-BUILD_BROKEN_USES_NETWORK := true
 BUILD_BROKEN_MISSING_REQUIRED_MODULES := true
 BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES := true
 
@@ -76,10 +75,6 @@ BOARD_KERNEL_CMDLINE += firmware_class.path=/vendor/firmware_mnt/image
 
 BOARD_KERNEL_IMAGE_NAME := Image
 BOARD_RAMDISK_USE_LZ4   := true
-
-# Keep only required modules; we're almost on size limit (Touch,Battery and Haptics)
-TW_LOAD_PREBUILT_MODULES_AT_FIRST := true
-TW_LOAD_VENDOR_MODULES := "mmi_relay.ko mmi_info.ko mmi_annotate.ko sensors_class.ko exfat.ko touchscreen_mmi.ko focaltech_v3.ko goodix_brl_mmi.ko bq25980_mmi_iio.ko mmi-smbcharger-iio.ko mmi_parallel_charger_iio.ko ldo_vibrator_mmi.ko"
 # WLAN
 #TW_LOAD_VENDOR_MODULES := 
 
@@ -123,16 +118,6 @@ BOARD_ROOT_EXTRA_SYMLINKS := \
     /vendor/fsg:/fsg
 
 BOARD_BOOTIMAGE_PARTITION_SIZE        := 100663296
-BOARD_VENDOR_BOOTIMAGE_PARTITION_SIZE := 100663296
-
-# A device can set up BOARD_SYSTEMIMAGE_JOURNAL_SIZE (number of journal blocks)
-# in its BoardConfig.mk.
-# To disable journaling, set "BOARD_SYSTEMIMAGE_JOURNAL_SIZE := 0".
-# BOARD_VENDORIMAGE_JOURNAL_SIZE and BOARD_OEMIMAGE_JOURNAL_SIZE work in
-# similar way.
-BOARD_SYSTEMIMAGE_JOURNAL_SIZE        := 0
-BOARD_VENDORIMAGE_JOURNAL_SIZE        := 0
-BOARD_OEMIMAGE_JOURNAL_SIZE           := 0
 
 TARGET_USERIMAGES_USE_EXT4 := true
 TARGET_USERIMAGES_USE_F2FS := true
@@ -144,24 +129,12 @@ BOARD_QTI_DYNAMIC_PARTITIONS_SIZE           := 9122611200 # TODO: Fix hardcoded 
 BOARD_QTI_DYNAMIC_PARTITIONS_PARTITION_LIST := system system_ext product vendor
 
 BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE   := f2fs
-BOARD_PRODUCTIMAGE_FILE_SYSTEM_TYPE    := ext4
-BOARD_SYSTEM_EXTIMAGE_FILE_SYSTEM_TYPE := ext4
-BOARD_SYSTEMIMAGE_FILE_SYSTEM_TYPE     := ext4
-BOARD_SYSTEMIMAGE_PARTITION_TYPE       := ext4
-BOARD_ODMIMAGE_FILE_SYSTEM_TYPE        := ext4
 BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE     := ext4
-BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE      := ext4
-
-TARGET_COPY_OUT_PRODUCT    := product
-TARGET_COPY_OUT_SYSTEM     := system
-TARGET_COPY_OUT_SYSTEM_EXT := system_ext
-TARGET_COPY_OUT_ODM        := odm
 TARGET_COPY_OUT_VENDOR     := vendor
 
 BOARD_PROPERTY_OVERRIDES_SPLIT_ENABLED := true
 TW_PREPARE_DATA_MEDIA_EARLY            := true
 BOARD_HAS_LARGE_FILESYSTEM             := true
-BOARD_USES_PRODUCTIMAGE                := true
 
 # Crypto
 FIXED_DECRYPT                   := true
@@ -229,10 +202,6 @@ TWRP_INCLUDE_LOGCAT             := true
 #TW_INCLUDE_7ZA                  := true
 #TW_INCLUDE_PYTHON               := true
 
-# Battery
-TW_USE_LEGACY_BATTERY_SERVICES  := true
-TARGET_RECOVERY_QCOM_RTC_FIX    := true
-
 # Recovery modules
 TARGET_RECOVERY_DEVICE_MODULES += \
     debuggerd \
@@ -246,9 +215,7 @@ RECOVERY_BINARY_SOURCE_FILES += \
 # Recovery libraries
 RECOVERY_LIBRARY_SOURCE_FILES += \
     $(TARGET_OUT_SHARED_LIBRARIES)/libion.so \
-    $(TARGET_OUT_SHARED_LIBRARIES)/libxml2.so \
-    $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/display.config@2.0.so \
-    $(TARGET_OUT_SYSTEM_EXT_SHARED_LIBRARIES)/vendor.display.config@2.0.so
+    $(TARGET_OUT_SHARED_LIBRARIES)/libxml2.so
 
 # Misc
 FIXED_HAPTICS := true
@@ -263,3 +230,5 @@ endif
 
 # Set to 1 to include WLAN features
 OF_ENABLE_WLAN := 1
+TW_EXCLUDE_TZDATA := true
+TW_EXCLUDE_LPDUMP := true
