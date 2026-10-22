@@ -108,7 +108,7 @@ BOARD_MKBOOTIMG_ARGS += --second_offset $(BOARD_KERNEL_SECOND_OFFSET)
 TARGET_FORCE_PREBUILT       := true
 ifeq ($(TARGET_FORCE_PREBUILT),true)
 BOARD_PREBUILT_DTBOIMAGE    := $(DEVICE_PATH)/prebuilt/dtbo.img
-TARGET_PREBUILT_KERNEL      := $(DEVICE_PATH)/prebuilt/kernel
+TARGET_PREBUILT_KERNEL      := $(DEVICE_PATH)/prebuilt/Image.gz
 TARGET_PREBUILT_DTB         := $(DEVICE_PATH)/prebuilt/dtb
 else
 TARGET_KERNEL_SOURCE := kernel/motorola/sm6375
