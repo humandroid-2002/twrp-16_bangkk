@@ -47,31 +47,27 @@ on init
 on fs
     wait /dev/block/platform/soc/${ro.boot.bootdevice}
     symlink /dev/block/platform/soc/${ro.boot.bootdevice} /dev/block/bootdevice
+    mkdir /tmp/lib/modules/
+    chmod 0777 /system/bin/cpko.sh
+    start cpko
+    sleep 3
     # Mount firmware
     mkdir /firmware
     mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /firmware ro
-    # Load ADSP firmware for PMIC
-    wait /sys/kernel/boot_adsp/boot
-    write /sys/kernel/boot_adsp/boot 1
-    wait /sys/class/power_supply/battery
     symlink /firmware_mnt /vendor/firmware_mnt
     write /proc/sys/kernel/firmware_config/force_sysfs_fallback 1
-    mount vendor
-    mkdir -p /lib/modules
-    cp -a /vendor/lib/modules/. /lib/modules/
-    umount vendor
 
 on boot
     start vendor.qti.vibrator
     start health-hal-2-1
 
 on property:twrp.modules.loaded=true
+    chmod 0777 /system/bin/setup_wlan.sh
+    start setup-wlan-script
     # Load ADSP firmware for PMIC
     wait /sys/kernel/boot_adsp/boot
     write /sys/kernel/boot_adsp/boot 1
     wait /sys/class/power_supply/battery
-    chmod 0777 /system/bin/setup_wlan.sh
-    start setup-wlan-script
 
 service set_permissive /system/bin/set_permissive.sh
     user root
@@ -86,6 +82,13 @@ service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
     seclabel u:r:recovery:s0
 
 service setup-wlan-script /system/bin/setup_wlan.sh
+    user root
+    group root
+    disabled
+    oneshot
+    seclabel u:r:recovery:s0
+
+service cpko /system/bin/cpko.sh
     user root
     group root
     disabled

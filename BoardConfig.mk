@@ -79,7 +79,7 @@ BOARD_RAMDISK_USE_LZ4   := true
 
 # Keep only required modules; we're almost on size limit (Touch,Battery and Haptics)
 TW_LOAD_PREBUILT_MODULES_AT_FIRST := true
-TW_LOAD_VENDOR_MODULES := "mmi_relay.ko mmi_info.ko mmi_annotate.ko sensors_class.ko exfat.ko touchscreen_mmi.ko focaltech_v3.ko goodix_brl_mmi.ko bq25980_mmi_iio.ko mmi-smbcharger-iio.ko mmi_parallel_charger_iio.ko ldo_vibrator_mmi.ko"
+TW_LOAD_VENDOR_MODULES := "mmi_relay.ko mmi_info.ko mmi_annotate.ko sensors_class.ko exfat.ko touchscreen_mmi.ko focaltech_v3.ko goodix_brl_mmi.ko bq25980_mmi_iio.ko mmi-smbcharger-iio.ko mmi_parallel_charger_iio.ko"
 # WLAN
 #TW_LOAD_VENDOR_MODULES := 
 

@@ -1,167 +1,157 @@
 #!/system/bin/sh
 #
-# OrangeFox Recovery Project
-# Load kernel modules from /odm/lib/modules
+# OrangeFox Recovery - bangkk
+# Load copied kernel modules in modules.load order.
+# Does not copy files or set twrp.modules.loaded.
 #
 
-MODDIR="/lib/modules"
-LOG="/tmp/recovery.log"
-LOADED="/tmp/odm_modules_loaded"
-FAILED="/tmp/odm_modules_failed"
+DST="/tmp/lib/modules"
+LOG="/tmp/insmod.log"
 
 log() {
-    echo "[odm-modules] $*" >> "$LOG"
+    echo "[SETUP-WLAN] $*" >> "$LOG"
 }
 
-# Cerca un modulo e restituisce il suo percorso relativo a MODDIR.
-find_module() {
-    name="$1"
-
-    # Rimuove eventuali spazi iniziali/finali e CR.
-    name=$(echo "$name" | tr -d '\r')
-
-    [ -z "$name" ] && return 1
-
-    case "$name" in
-        /*)
-            case "$name" in
-                "$MODDIR"/*) name="${name#"$MODDIR"/}" ;;
-                *) return 1 ;;
-            esac
-            ;;
-    esac
-
-    if [ -f "$MODDIR/$name" ]; then
-        echo "$name"
-        return 0
-    fi
-
-    case "$name" in
-        *.ko) base="${name##*/}" ;;
-        *)    base="${name##*/}.ko" ;;
-    esac
-
-    # Cerca anche nei sottodirettori.
-    find "$MODDIR" -type f -name "$base" 2>/dev/null |
-        sed "s#^$MODDIR/##" |
-        head -n 1
+is_loaded() {
+    wanted=$(basename "$1" .ko | tr '-' '_')
+    awk -v wanted="$wanted" '
+        {
+            name = $1
+            gsub(/-/, "_", name)
+            if (name == wanted)
+                found = 1
+        }
+        END { exit !found }
+    ' /proc/modules
 }
 
-# Carica un modulo e tutte le sue dipendenze prima di esso.
-load_module() {
-    rel="$1"
-    [ -z "$rel" ] && return 1
+[ -d "$DST" ] || {
+    log "ERRORE: directory assente: $DST"
+    exit 1
+}
 
-    path="$MODDIR/$rel"
-    [ -f "$path" ] || {
-        log "ERRORE: modulo non trovato: $rel"
-        echo "$rel" >> "$FAILED"
-        return 1
-    }
+[ -s "$DST/wlan.ko" ] || {
+    log "ERRORE: wlan.ko assente"
+    exit 1
+}
 
-    # Evita di caricare due volte lo stesso file.
-    grep -Fqx "$rel" "$LOADED" 2>/dev/null && return 0
+log "========== INIZIO CARICAMENTO =========="
 
-    # Se è già caricato nel kernel, non usare nuovamente insmod.
-    modname="${rel##*/}"
-    modname="${modname%.ko}"
-    modname=$(echo "$modname" | tr '-' '_')
+OK=0
+SKIPPED=0
+FAILED=0
 
-    if grep -q "^${modname} " /proc/modules 2>/dev/null; then
-        log "Gia' caricato: $rel"
-        echo "$rel" >> "$LOADED"
-        return 0
+for module in \
+    wcd9xxx_dlkm.ko \
+    aw882xx_acf.ko \
+    wsa881x_analog_dlkm.ko \
+    btpower.ko \
+    q6_pdr_dlkm.ko \
+    machine_dlkm.ko \
+    zram.ko \
+    swr_ctrl_dlkm.ko \
+    wcd938x_slave_dlkm.ko \
+    q6_notifier_dlkm.ko \
+    wcd_core_dlkm.ko \
+    wcd937x_slave_dlkm.ko \
+    wcd937x_dlkm.ko \
+    rx_macro_dlkm.ko \
+    platform_dlkm.ko \
+    lzo_decompress.ko \
+    camera.ko \
+    sec_nfc.ko \
+    pinctrl_lpi_dlkm.ko \
+    wcd938x_dlkm.ko \
+    stub_dlkm.ko \
+    bt_fm_slim.ko \
+    aw87xxx_dlkm.ko \
+    adsp_loader_dlkm.ko \
+    mbhc_dlkm.ko \
+    va_macro_dlkm.ko \
+    native_dlkm.ko \
+    snd_event_dlkm.ko \
+    rdbg.ko \
+    lzo-rle.ko \
+    bolero_cdc_dlkm.ko \
+    q6_dlkm.ko \
+    lzo.ko \
+    aw882xx_k419.ko \
+    lzo_compress.ko \
+    apr_dlkm.ko \
+    swr_dlkm.ko \
+    tx_macro_dlkm.ko \
+    wlan.ko \
+    rmnet_core.ko \
+    rmnet_ctl.ko \
+    rmnet_offload.ko \
+    rmnet_shs.ko \
+    utags.ko \
+    mmi_relay.ko \
+    mmi_info.ko \
+    mmi_annotate.ko \
+    sensors_class.ko \
+    exfat.ko \
+    qpnp_adaptive_charge.ko \
+    rbs_fod_mmi.ko \
+    sx937x_sar.ko \
+    awinic_sar.ko \
+    mmi_sys_temp.ko \
+    ldo_vibrator_mmi.ko \
+    touchscreen_mmi.ko \
+    focaltech_v3.ko \
+    goodix_brl_mmi.ko \
+    cci_intf.ko \
+    bq25980_mmi_iio.ko \
+    mmi-smbcharger-iio.ko \
+    mmi_parallel_charger_iio.ko \
+    fm_ctrl.ko
+do
+    path="$DST/$module"
+
+    if [ ! -s "$path" ]; then
+        log "ASSENTE: $module"
+        FAILED=$((FAILED + 1))
+        continue
     fi
 
-    # Legge le dipendenze da modules.dep.
-    if [ -f "$MODDIR/modules.dep" ]; then
-        deps=$(awk -v target="$rel" '
-            {
-                file = $1
-                sub(/:$/, "", file)
-                if (file == target) {
-                    for (i = 2; i <= NF; i++)
-                        print $i
-                    exit
-                }
-            }
-        ' "$MODDIR/modules.dep")
-
-        for dep in $deps; do
-            load_module "$dep" || {
-                log "ERRORE: dipendenza $dep non caricata per $rel"
-                echo "$rel" >> "$FAILED"
-                return 1
-            }
-        done
+    if is_loaded "$module"; then
+        log "GIA' CARICATO: $module"
+        SKIPPED=$((SKIPPED + 1))
+        continue
     fi
 
-    log "Caricamento: $rel"
+    log "INSmod: $module"
+
     if insmod "$path" >> "$LOG" 2>&1; then
-        echo "$rel" >> "$LOADED"
-        log "OK: $rel"
-        return 0
+        log "OK: $module"
+        OK=$((OK + 1))
     else
-        log "ERRORE insmod: $rel"
-        echo "$rel" >> "$FAILED"
-        return 1
+        log "ERRORE: $module"
+        FAILED=$((FAILED + 1))
     fi
-}
+done
 
-main() {
-    if [ ! -d "$MODDIR" ]; then
-        log "ERRORE: directory inesistente: $MODDIR"
-        return 1
-    fi
+log "Risultato: caricati=$OK gia_presenti=$SKIPPED errori=$FAILED"
 
-    : > "$LOADED"
-    : > "$FAILED"
+# Non attivare post.decrypt.modules se WLAN non risulta caricato.
+if ! is_loaded wlan.ko; then
+    log "ERRORE: wlan non risulta caricato; proprietà non impostata"
+    exit 1
+fi
 
-    log "Inizio caricamento da $MODDIR"
+log "VERIFICATO: wlan presente in /proc/modules"
 
-    if [ -f "$MODDIR/modules.load" ]; then
-        log "Uso modules.load"
+# Imposta post.decrypt.modules soltanto dopo la verifica WLAN.
+log "Imposto post.decrypt.modules=true tramite resetprop"
+resetprop post.decrypt.modules true
 
-        while IFS= read -r module || [ -n "$module" ]; do
-            module=$(echo "$module" | tr -d '\r')
+VALUE=$(getprop post.decrypt.modules)
+if [ "$VALUE" != "true" ]; then
+    log "ERRORE: post.decrypt.modules non impostata"
+    exit 1
+fi
 
-            # Ignora righe vuote e commenti.
-            case "$module" in
-                ""|\#*) continue ;;
-            esac
+log "Proprieta' verificata: post.decrypt.modules=$VALUE"
+log "========== FINE CARICAMENTO =========="
 
-            rel=$(find_module "$module")
-            if [ -z "$rel" ]; then
-                log "ERRORE: modulo in modules.load non trovato: $module"
-                echo "$module" >> "$FAILED"
-                continue
-            fi
-
-            load_module "$rel"
-        done < "$MODDIR/modules.load"
-
-    elif [ -f "$MODDIR/modules.dep" ]; then
-        log "modules.load assente: uso modules.dep"
-
-        while IFS= read -r line || [ -n "$line" ]; do
-            rel="${line%%:*}"
-            [ -z "$rel" ] && continue
-            load_module "$rel"
-        done < "$MODDIR/modules.dep"
-
-    else
-        log "ERRORE: modules.load e modules.dep assenti"
-        return 1
-    fi
-
-    if [ -s "$FAILED" ]; then
-        log "Completato con errori. Vedere $FAILED"
-    else
-        log "Caricamento completato senza errori registrati"
-    fi
-
-    return 0
-}
-setprop post.decrypt.modules true
-main
-exit $?
+exit 0
