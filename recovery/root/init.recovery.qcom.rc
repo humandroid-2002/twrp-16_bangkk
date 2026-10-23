@@ -27,10 +27,10 @@
 
 import /init.recovery.qcom_decrypt.rc
 import /init.recovery.service.rc
+import /init.recovery.wifi.rc
 
 on early-init
     write /sys/fs/selinux/enforce 0
-    start runatboot
     start set_permissive
     setenv LD_LIBRARY_PATH /vendor/lib64:/system/lib64:/vendor/lib:/system/lib
 
@@ -39,6 +39,7 @@ on early-fs
     write /proc/sys/kernel/sched_lib_mask_force 255
 
 on init
+    start boot-hal-1-1
     write /sys/class/backlight/panel0-backlight/brightness 200
     write /sys/class/leds/vibrator/duration 180
     write /sys/class/leds/vibrator/trigger "transient"
@@ -53,26 +54,24 @@ on fs
     wait /sys/kernel/boot_adsp/boot
     write /sys/kernel/boot_adsp/boot 1
     wait /sys/class/power_supply/battery
-    symlink /firmware /vendor/firmware_mnt
+    symlink /firmware_mnt /vendor/firmware_mnt
+    write /proc/sys/kernel/firmware_config/force_sysfs_fallback 1
+    mount vendor
+    mkdir -p /lib/modules
+    cp -a /vendor/lib/modules/. /lib/modules/
+    umount vendor
 
 on boot
     start vendor.qti.vibrator
     start health-hal-2-1
-
-on post-fs
-    start boot-hal-1-1
 
 on property:twrp.modules.loaded=true
     # Load ADSP firmware for PMIC
     wait /sys/kernel/boot_adsp/boot
     write /sys/kernel/boot_adsp/boot 1
     wait /sys/class/power_supply/battery
-
-on property:twrp.modules.loaded=false
-    # Load ADSP firmware for PMIC
-    wait /sys/kernel/boot_adsp/boot
-    write /sys/kernel/boot_adsp/boot 1
-    wait /sys/class/power_supply/battery
+    chmod 0777 /system/bin/setup_wlan.sh
+    start setup-wlan-script
 
 service set_permissive /system/bin/set_permissive.sh
     user root
@@ -86,8 +85,9 @@ service vendor.qti.vibrator /system/bin/vendor.qti.hardware.vibrator.service
     setenv LD_LIBRARY_PATH /vendor/lib64:/system/lib64
     seclabel u:r:recovery:s0
 
-service runatboot /system/bin/runatboot.sh
+service setup-wlan-script /system/bin/setup_wlan.sh
     user root
     group root
+    disabled
     oneshot
     seclabel u:r:recovery:s0
