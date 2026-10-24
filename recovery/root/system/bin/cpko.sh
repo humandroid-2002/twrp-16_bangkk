@@ -95,6 +95,7 @@ log "========== COPIA MODULI COMPLETATA =========="
 umount /vendor
 setprop twrp.modules.loaded true
 resetprop twrp.modules.loaded true
+setprop twrp.cpko true
 mount /mnt/vendor/persist
 mount /mnt/product/persist
 exit 0

@@ -18,6 +18,289 @@
 #   - the "skip /firmware mount if already mounted" guard: a redundant mount of
 #     an already-mounted point simply fails harmlessly.
 
+on property:twrp.modules.loaded=true
+    ######## Add by jason
+    # WiFi early-init 阶段 加载内核模块
+    # 使用 write 命令直接写入 /dev/kmsg，避免 SELinux 问题
+    write /dev/kmsg "[jasonwifi][early-init] WiFi early-init started"
+    write /proc/sys/kernel/firmware_config/force_sysfs_fallback 1
+    write /dev/kmsg "[jasonwifi][early-init] Starting modules load..."
+    start cpko
+
+service cpko /system/bin/cpko.sh
+    disabled
+    oneshot
+    seclabel u:r:recovery:s0
+
+# WiFi相关服务
+service vendor.qrtr-ns /vendor/bin/qrtr-ns -f
+    disabled
+    user root
+    group root
+    capabilities NET_BIND_SERVICE
+    seclabel u:r:recovery:s0
+
+service vendor.rmt_storage /vendor/bin/rmt_storage
+    disabled
+    user root
+    ioprio rt 0
+    seclabel u:r:recovery:s0
+
+service vendor.tftp_server /vendor/bin/tftp_server
+    disabled
+    user root
+    seclabel u:r:recovery:s0
+    disabled
+
+service vendor.per_mgr /vendor/bin/pm-service
+    disabled
+    user root
+    group root
+    seclabel u:r:recovery:s0
+
+service vendor.pd_mapper /vendor/bin/pd-mapper
+    disabled
+    user root
+    group root
+    seclabel u:r:recovery:s0
+
+service vendor.per_proxy /vendor/bin/pm-proxy
+    disabled
+    user root
+    group root
+    seclabel u:r:recovery:s0
+
+service cnss-daemon /vendor/bin/cnss-daemon -n -l
+    disabled
+    user root
+    group root system inet net_admin wifi
+    capabilities NET_ADMIN
+    seclabel u:r:recovery:s0
+
+service dhcpcd /system/bin/dhcpcd wlan0 -B
+    disabled
+    oneshot
+    seclabel u:r:recovery:s0
+
+on property:survival.start.service=true
+    write /dev/kmsg "[jasonwifi][service] Starting Qualcomm services"
+    start vendor.pd_mapper
+    start cnss-daemon
+    write /dev/kmsg "[jasonwifi][service] vendor.pd_mapper started"
+    start vendor.per_proxy
+    write /dev/kmsg "[jasonwifi][service] vendor.per_proxy started"
+    start vendor.per_mgr
+    write /dev/kmsg "[jasonwifi][service] vendor.per_mgr started"
+    start vendor.qrtr-ns
+    write /dev/kmsg "[jasonwifi][service] vendor.qrtr-ns started"
+    start vendor.rmt_storage
+    write /dev/kmsg "[jasonwifi][service] vendor.rmt_storage started"
+    start vendor.tftp_server
+    write /dev/kmsg "[jasonwifi][service] vendor.tftp_server started"
+    write /dev/kmsg "[jasonwifi][service] Qualcomm services started successfuly!"
+
+on property:twrp.cpko=true
+    wait /tmp/lib/modules/touchscreen_mmi.ko
+    insmod /tmp/lib/modules/touchscreen_mmi.ko
+    wait /tmp/lib/modules/mmi_relay.ko
+    insmod /tmp/lib/modules/mmi_relay.ko
+    wait /tmp/lib/modules/sensors_class.ko
+    insmod /tmp/lib/modules/sensors_class.ko
+    wait /tmp/lib/modules/mmi_annotate.ko
+    insmod /tmp/lib/modules/mmi_annotate.ko
+    wait /tmp/lib/modules/mmi_info.ko
+    insmod /tmp/lib/modules/mmi_info.ko
+    wait /tmp/lib/modules/focaltech_v3.ko
+    insmod /tmp/lib/modules/focaltech_v3.ko
+    wait /tmp/lib/modules/goodix_brl_mmi.ko
+    insmod /tmp/lib/modules/goodix_brl_mmi.ko
+
+    wait /tmp/lib/modules/lzo_decompress.ko
+    insmod /tmp/lib/modules/lzo_decompress.ko
+    wait /tmp/lib/modules/lzo_compress.ko
+    insmod /tmp/lib/modules/lzo_compress.ko
+    wait /tmp/lib/modules/lzo.ko
+    insmod /tmp/lib/modules/lzo.ko
+    wait /tmp/lib/modules/lzo-rle.ko
+    insmod /tmp/lib/modules/lzo-rle.ko
+
+    wait /tmp/lib/modules/q6_pdr_dlkm.ko
+    insmod /tmp/lib/modules/q6_pdr_dlkm.ko
+    wait /tmp/lib/modules/q6_notifier_dlkm.ko
+    insmod /tmp/lib/modules/q6_notifier_dlkm.ko
+    wait /tmp/lib/modules/snd_event_dlkm.ko
+    insmod /tmp/lib/modules/snd_event_dlkm.ko
+    wait /tmp/lib/modules/apr_dlkm.ko
+    insmod /tmp/lib/modules/apr_dlkm.ko
+    wait /tmp/lib/modules/q6_dlkm.ko
+    insmod /tmp/lib/modules/q6_dlkm.ko
+
+    wait /tmp/lib/modules/wcd_core_dlkm.ko
+    insmod /tmp/lib/modules/wcd_core_dlkm.ko
+    wait /tmp/lib/modules/wcd9xxx_dlkm.ko
+    insmod /tmp/lib/modules/wcd9xxx_dlkm.ko
+    wait /tmp/lib/modules/mbhc_dlkm.ko
+    insmod /tmp/lib/modules/mbhc_dlkm.ko
+    wait /tmp/lib/modules/swr_dlkm.ko
+    insmod /tmp/lib/modules/swr_dlkm.ko
+    wait /tmp/lib/modules/bolero_cdc_dlkm.ko
+    insmod /tmp/lib/modules/bolero_cdc_dlkm.ko
+    wait /tmp/lib/modules/wcd937x_dlkm.ko
+    insmod /tmp/lib/modules/wcd937x_dlkm.ko
+    wait /tmp/lib/modules/wcd938x_dlkm.ko
+    insmod /tmp/lib/modules/wcd938x_dlkm.ko
+    wait /tmp/lib/modules/aw87xxx_dlkm.ko
+    insmod /tmp/lib/modules/aw87xxx_dlkm.ko
+    wait /tmp/lib/modules/machine_dlkm.ko
+    insmod /tmp/lib/modules/machine_dlkm.ko
+    wait /tmp/lib/modules/platform_dlkm.ko
+    insmod /tmp/lib/modules/platform_dlkm.ko
+    wait /tmp/lib/modules/native_dlkm.ko
+    insmod /tmp/lib/modules/native_dlkm.ko
+
+    wait /tmp/lib/modules/swr_ctrl_dlkm.ko
+    insmod /tmp/lib/modules/swr_ctrl_dlkm.ko
+    wait /tmp/lib/modules/rx_macro_dlkm.ko
+    insmod /tmp/lib/modules/rx_macro_dlkm.ko
+    wait /tmp/lib/modules/va_macro_dlkm.ko
+    insmod /tmp/lib/modules/va_macro_dlkm.ko
+    wait /tmp/lib/modules/tx_macro_dlkm.ko
+    insmod /tmp/lib/modules/tx_macro_dlkm.ko
+    wait /tmp/lib/modules/wsa881x_analog_dlkm.ko
+    insmod /tmp/lib/modules/wsa881x_analog_dlkm.ko
+    wait /tmp/lib/modules/wcd937x_slave_dlkm.ko
+    insmod /tmp/lib/modules/wcd937x_slave_dlkm.ko
+    wait /tmp/lib/modules/wcd938x_slave_dlkm.ko
+    insmod /tmp/lib/modules/wcd938x_slave_dlkm.ko
+    wait /tmp/lib/modules/aw882xx_acf.ko
+    insmod /tmp/lib/modules/aw882xx_acf.ko
+    wait /tmp/lib/modules/aw882xx_k419.ko
+    insmod /tmp/lib/modules/aw882xx_k419.ko
+
+    wait /tmp/lib/modules/bq25980_mmi_iio.ko
+    insmod /tmp/lib/modules/bq25980_mmi_iio.ko
+    wait /tmp/lib/modules/mmi_parallel_charger_iio.ko
+    insmod /tmp/lib/modules/mmi_parallel_charger_iio.ko
+    wait /tmp/lib/modules/mmi-smbcharger-iio.ko
+    insmod /tmp/lib/modules/mmi-smbcharger-iio.ko
+    wait /tmp/lib/modules/awinic_sar.ko
+    insmod /tmp/lib/modules/awinic_sar.ko
+    wait /tmp/lib/modules/sx937x_sar.ko
+    insmod /tmp/lib/modules/sx937x_sar.ko
+    wait /tmp/lib/modules/mmi_sys_temp.ko
+    insmod /tmp/lib/modules/mmi_sys_temp.ko
+    wait /tmp/lib/modules/fm_ctrl.ko
+    insmod /tmp/lib/modules/fm_ctrl.ko
+
+    wait /tmp/lib/modules/camera.ko
+    insmod /tmp/lib/modules/camera.ko
+    wait /tmp/lib/modules/cci_intf.ko
+    insmod /tmp/lib/modules/cci_intf.ko
+
+    wait /tmp/lib/modules/stub_dlkm.ko
+    insmod /tmp/lib/modules/stub_dlkm.ko
+    wait /tmp/lib/modules/rmnet_ctl.ko
+    insmod /tmp/lib/modules/rmnet_ctl.ko
+    wait /tmp/lib/modules/rdbg.ko
+    insmod /tmp/lib/modules/rdbg.ko
+    wait /tmp/lib/modules/rmnet_core.ko
+    insmod /tmp/lib/modules/rmnet_core.ko
+    wait /tmp/lib/modules/rmnet_offload.ko
+    insmod /tmp/lib/modules/rmnet_offload.ko
+    wait /tmp/lib/modules/rmnet_shs.ko
+    insmod /tmp/lib/modules/rmnet_shs.ko
+    wait /tmp/lib/modules/pinctrl_lpi_dlkm.ko
+    insmod /tmp/lib/modules/pinctrl_lpi_dlkm.ko
+
+    wait /tmp/lib/modules/btpower.ko
+    insmod /tmp/lib/modules/btpower.ko
+    wait /tmp/lib/modules/bt_fm_slim.ko
+    insmod /tmp/lib/modules/bt_fm_slim.ko
+    wait /tmp/lib/modules/utags.ko
+    insmod /tmp/lib/modules/utags.ko
+    wait /tmp/lib/modules/rbs_fod_mmi.ko
+    insmod /tmp/lib/modules/rbs_fod_mmi.ko
+    wait /tmp/lib/modules/qpnp_adaptive_charge.ko
+    insmod /tmp/lib/modules/qpnp_adaptive_charge.ko
+    wait /tmp/lib/modules/ldo_vibrator_mmi.ko
+    insmod /tmp/lib/modules/ldo_vibrator_mmi.ko
+    wait /tmp/lib/modules/zram.ko
+    insmod /tmp/lib/modules/zram.ko
+    wait /tmp/lib/modules/exfat.ko
+    insmod /tmp/lib/modules/exfat.ko
+    wait /tmp/lib/modules/sec_nfc.ko
+    insmod /tmp/lib/modules/sec_nfc.ko
+    wait /tmp/lib/modules/wlan.ko
+    insmod /tmp/lib/modules/wlan.ko
+
+    write /dev/kmsg "[jasonwifi][early-init] WiFi early-init modules loaded successfully!"
+    setprop twrp.insmodko 1
+    ######## Add End
+
+on init
+    ######## Add by jason
+    # 准备firmware目录和ini配置
+    write /dev/kmsg "[jasonwifi][prepare-files] WiFi prepare started"
+    # wpa_supplicant配置目录
+    mkdir /data/misc 0777 root shell
+    mkdir /data/misc/wifi 0777 root shell
+    write /dev/kmsg "[jasonwifi][prepare-files] Directories created"
+    write /dev/kmsg "[jasonwifi][prepare-files] WiFi prepare successfully!"
+    ######## Add End
+
+on boot
+    ######## Add by jason
+    # WiFi boot
+    write /dev/kmsg "[jasonwifi][boot] Setting Wlan boot env..."
+    # 启用 WLAN SSR recovery
+    write /sys/kernel/cnss/recovery 3
+    chown radio wakelock /sys/power/wake_lock
+    chown radio wakelock /sys/power/wake_unlock
+    chmod 0660 /sys/power/wake_lock
+    chmod 0660 /sys/power/wake_unlock
+    write /dev/kmsg "[jasonwifi][boot] Wlan boot env set done!"
+    ######## Add End
+
+######## Add by jason
+
+on property:qcomwlan.driver.load=true
+    write /dev/kmsg "[jasonwifi][driver] Starting load WiFi driver modules..."
+    write /sys/devices/platform/soc/b0000000.qcom,cnss-kiwi/fs_ready 1
+    exec - root root -- /sbin/sh -c "/system/bin/cpko.sh"
+    wait /tmp/lib/modules/wlan.ko
+    insmod /tmp/lib/modules/wlan.ko
+    write /dev/kmsg "[jasonwifi][driver] wlan.ko loaded"
+    write /dev/kmsg "[jasonwifi][driver] WiFi driver loaded successfully!"
+    write /dev/kmsg "[jasonwifi][interface] Waiting for wlan0 create..."
+    wait /sys/class/net/wlan0 10
+    write /dev/kmsg "[jasonwifi][interface] Interface wlan0 found"
+
+    # 设置属性，触发 wpa_supplicant 启动
+    write /dev/kmsg "[jasonwifi][driver] Setting property to start wpa_supplicant..."
+    setprop jasonwifi.driver.ready true
+
+on property:twrp.insmodko=1
+    setprop survival.start.service true
+    setprop qcomwlan.driver.load true
+
+on property:jasonwifi.driver.ready=true
+    # 创建 wpa_supplicant sockets 目录并设置权限
+    mkdir /tmp/recovery 0777 root root
+    mkdir /tmp/recovery/sockets 0777 root root
+    write /dev/kmsg "[jasonwifi][post-fs-data] wpa_supplicant sockets dir created with root:root"
+    # start wpa_supplicant
+    # write /dev/kmsg "[jasonwifi][interface] wpa_supplicant started"
+
+on property:supplicant.status=running
+    # start wpa_supplicant
+    # write /dev/kmsg "[jasonwifi][wpa_supplicant] wpa_supplicant service started"
+
+on property:supplicant.status=stopped
+    # stop wpa_supplicant
+    # write /dev/kmsg "[jasonwifi][wpa_supplicant] wpa_supplicant stopped"
+
+######## Add End
+
 on property:post.decrypt.modules=true
     chmod 222 /sys/bus/platform/drivers/icnss2/c800000.qcom,icnss/wpss_boot
     write /sys/bus/platform/drivers/icnss2/c800000.qcom,icnss/wpss_boot 1
