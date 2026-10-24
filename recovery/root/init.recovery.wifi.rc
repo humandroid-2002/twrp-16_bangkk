@@ -18,6 +18,13 @@
 #   - the "skip /firmware mount if already mounted" guard: a redundant mount of
 #     an already-mounted point simply fails harmlessly.
 
+on property:post.decrypt.modules=true
+    chmod 222 /sys/bus/platform/drivers/icnss2/22800000.qcom,icnss/wpss_boot
+    write /sys/bus/platform/drivers/icnss2/22800000.qcom,icnss/wpss_boot 1
+    wait /sys/class/net/wlan0 10
+    write /dev/kmsg "Interface wlan0 found"
+    setprop wifi.driver.ready true
+
 on property:twrp.modules.loaded=true
     ######## Add by jason
     # WiFi early-init 阶段 加载内核模块
@@ -25,12 +32,6 @@ on property:twrp.modules.loaded=true
     write /dev/kmsg "[jasonwifi][early-init] WiFi early-init started"
     write /proc/sys/kernel/firmware_config/force_sysfs_fallback 1
     write /dev/kmsg "[jasonwifi][early-init] Starting modules load..."
-    start cpko
-
-service cpko /system/bin/cpko.sh
-    disabled
-    oneshot
-    seclabel u:r:recovery:s0
 
 # WiFi相关服务
 service vendor.qrtr-ns /vendor/bin/qrtr-ns -f
@@ -96,6 +97,7 @@ on property:survival.start.service=true
     start vendor.rmt_storage
     write /dev/kmsg "[jasonwifi][service] vendor.rmt_storage started"
     start vendor.tftp_server
+    start vendor.wifi_hal_legacy
     write /dev/kmsg "[jasonwifi][service] vendor.tftp_server started"
     write /dev/kmsg "[jasonwifi][service] Qualcomm services started successfuly!"
 
@@ -237,77 +239,6 @@ on property:twrp.cpko=true
     setprop twrp.insmodko 1
     ######## Add End
 
-on init
-    ######## Add by jason
-    # 准备firmware目录和ini配置
-    write /dev/kmsg "[jasonwifi][prepare-files] WiFi prepare started"
-    # wpa_supplicant配置目录
-    mkdir /data/misc 0777 root shell
-    mkdir /data/misc/wifi 0777 root shell
-    write /dev/kmsg "[jasonwifi][prepare-files] Directories created"
-    write /dev/kmsg "[jasonwifi][prepare-files] WiFi prepare successfully!"
-    ######## Add End
-
-on boot
-    ######## Add by jason
-    # WiFi boot
-    write /dev/kmsg "[jasonwifi][boot] Setting Wlan boot env..."
-    # 启用 WLAN SSR recovery
-    write /sys/kernel/cnss/recovery 3
-    chown radio wakelock /sys/power/wake_lock
-    chown radio wakelock /sys/power/wake_unlock
-    chmod 0660 /sys/power/wake_lock
-    chmod 0660 /sys/power/wake_unlock
-    write /dev/kmsg "[jasonwifi][boot] Wlan boot env set done!"
-    ######## Add End
-
-######## Add by jason
-
-on property:qcomwlan.driver.load=true
-    write /dev/kmsg "[jasonwifi][driver] Starting load WiFi driver modules..."
-    write /sys/devices/platform/soc/b0000000.qcom,cnss-kiwi/fs_ready 1
-    exec - root root -- /sbin/sh -c "/system/bin/cpko.sh"
-    wait /tmp/lib/modules/wlan.ko
-    insmod /tmp/lib/modules/wlan.ko
-    write /dev/kmsg "[jasonwifi][driver] wlan.ko loaded"
-    write /dev/kmsg "[jasonwifi][driver] WiFi driver loaded successfully!"
-    write /dev/kmsg "[jasonwifi][interface] Waiting for wlan0 create..."
-    wait /sys/class/net/wlan0 10
-    write /dev/kmsg "[jasonwifi][interface] Interface wlan0 found"
-
-    # 设置属性，触发 wpa_supplicant 启动
-    write /dev/kmsg "[jasonwifi][driver] Setting property to start wpa_supplicant..."
-    setprop jasonwifi.driver.ready true
-
-on property:twrp.insmodko=1
-    setprop survival.start.service true
-    setprop qcomwlan.driver.load true
-
-on property:jasonwifi.driver.ready=true
-    # 创建 wpa_supplicant sockets 目录并设置权限
-    mkdir /tmp/recovery 0777 root root
-    mkdir /tmp/recovery/sockets 0777 root root
-    write /dev/kmsg "[jasonwifi][post-fs-data] wpa_supplicant sockets dir created with root:root"
-    # start wpa_supplicant
-    # write /dev/kmsg "[jasonwifi][interface] wpa_supplicant started"
-
-on property:supplicant.status=running
-    # start wpa_supplicant
-    # write /dev/kmsg "[jasonwifi][wpa_supplicant] wpa_supplicant service started"
-
-on property:supplicant.status=stopped
-    # stop wpa_supplicant
-    # write /dev/kmsg "[jasonwifi][wpa_supplicant] wpa_supplicant stopped"
-
-######## Add End
-
-on property:post.decrypt.modules=true
-    chmod 222 /sys/bus/platform/drivers/icnss2/c800000.qcom,icnss/wpss_boot
-    write /sys/bus/platform/drivers/icnss2/c800000.qcom,icnss/wpss_boot 1
-    wait /sys/class/net/wlan0 10
-    write /dev/kmsg "Interface wlan0 found"
-    setprop wifi.driver.ready true
-
 on property:post.decrypt.modules=true
     setprop sys.fox.wlan.up 0
     write /dev/kmsg "[wlan] booting wpss"
@@ -330,10 +261,10 @@ on property:sys.fox.wlan.up=1
 
     # Ensure the QCA6490 firmware is reachable (modem partition). Harmless if the
     # common init.recovery.qcom.rc already mounted it.
-    # mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /firmware ro
+    mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /firmware ro
 
     # Point the direct firmware loader at our config dir (also a ueventd dir).
-    write /sys/module/firmware_class/parameters/path /vendor/firmware_mnt/image
+    write /sys/module/firmware_class/parameters/path /etc/firmware
 
     # Assert fs_ready -> cnss2 cold-boots, host driver creates wlan0. Then wait
     # up to 15s for the interface (replaces the shell sleep loop).
@@ -355,3 +286,4 @@ service fox-wlan-ready /system/bin/sh -c "until test -e /sys/class/net/wlan0; do
     user root
     group root
     seclabel u:r:recovery:s0
+#

@@ -80,7 +80,6 @@ for module in \
     apr_dlkm.ko \
     swr_dlkm.ko \
     tx_macro_dlkm.ko \
-    wlan.ko \
     rmnet_core.ko \
     rmnet_ctl.ko \
     rmnet_offload.ko \

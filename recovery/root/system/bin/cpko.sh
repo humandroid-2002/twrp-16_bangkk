@@ -7,7 +7,6 @@
 SRC="/vendor/lib/modules"
 DST="/tmp/lib/modules"
 LOG="/tmp/cpko.log"
-PROP="post.decrypt.modules"
 
 twrp mount vendor
 
@@ -81,20 +80,10 @@ log "Moduli .ko presenti nella destinazione: $COUNT"
 
 [ "$COUNT" -gt 0 ] || fail "Nessun modulo .ko nella destinazione"
 
-# 7. Attiva il trigger .rc soltanto dopo la copia riuscita.
-log "Copia completata; imposto $PROP=true"
-setprop "$PROP" true
-
-# Verifica la proprietà.
-VALUE=$(getprop "$PROP")
-[ "$VALUE" = "true" ] ||
-    fail "Impossibile impostare la proprietà $PROP"
-
-log "Proprieta' verificata: $PROP=$VALUE"
 log "========== COPIA MODULI COMPLETATA =========="
 umount /vendor
+umount -l /vendor
 setprop twrp.modules.loaded true
-resetprop twrp.modules.loaded true
 setprop twrp.cpko true
 mount /mnt/vendor/persist
 mount /mnt/product/persist

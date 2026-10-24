@@ -30,6 +30,11 @@ import /init.recovery.service.rc
 import /init.recovery.wifi.rc
 
 on early-init
+    # Mount firmware
+    mkdir /firmware
+    mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /firmware ro
+    symlink /firmware_mnt /vendor/firmware_mnt
+    symlink /firmware /vendor/firmware
     write /sys/fs/selinux/enforce 0
     start set_permissive
     setenv LD_LIBRARY_PATH /vendor/lib64:/system/lib64:/vendor/lib:/system/lib
@@ -50,11 +55,7 @@ on fs
     mkdir /tmp/lib/modules/
     chmod 0777 /system/bin/cpko.sh
     start cpko
-    sleep 3
-    # Mount firmware
-    mkdir /firmware
-    mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /firmware ro
-    symlink /firmware_mnt /vendor/firmware_mnt
+    sleep 2
     write /proc/sys/kernel/firmware_config/force_sysfs_fallback 1
 
 on boot
